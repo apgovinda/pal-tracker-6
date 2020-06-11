@@ -1,0 +1,7 @@
+$ docker build --build-arg JAR_FILE=build/libs/*.jar -t apgovinda/pal-tracker .
+docker run -p 8080:8080 apgovinda/pal-tracker
+
+docker push apgovinda/pal-tracker
+
+
+

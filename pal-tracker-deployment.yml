@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pal-tracker-deployment
+  labels:
+    app: pal-tracker
+    deployment: pal-tracker-app
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: pal-tracker
+  template:
+    metadata:
+      labels:
+        app: pal-tracker
+        deployment: pal-tracker-app
+    spec:
+      containers:
+      - name: pal-tracker
+        image: apgovinda/pal-tracker
+        ports:
+        - containerPort: 8080
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: pal-tracker-app-lb
+  labels:
+    deployment: pal-tracker-app
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 8080
+      targetPort: 8080
+      protocol: TCP
+      name: http
+  selector:
+    app: pal-tracker
+
+
+
