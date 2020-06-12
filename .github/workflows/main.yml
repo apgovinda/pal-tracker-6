@@ -32,4 +32,4 @@ jobs:
          ls -l
          docker login -u apgovinda -p keepitsimple
          docker images
-         docker build  apgovinda/pal-tracker1234
+         docker build -t apgovinda/paltrackertest1 .
