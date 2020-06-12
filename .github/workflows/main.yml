@@ -31,6 +31,6 @@ jobs:
          pwd 
          ls -l
          docker login -u apgovinda -p keepitsimple         
-         docker build  apgovinda/paltrackerpks .
+         docker build -t apgovinda/paltrackerpks .
          docker images
          docker push apgovinda/paltrackerpks
