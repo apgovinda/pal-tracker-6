@@ -30,4 +30,6 @@ jobs:
         run: |
          pwd 
          ls -l
+         docker login -u apgovinda -p keepitsimple
+         docker images
          docker build -t https://registry.hub.docker.com/apgovinda/pal-tracker1234
