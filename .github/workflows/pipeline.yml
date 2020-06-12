@@ -1,50 +1,50 @@
-# This workflow will build a docker container, publish it to IBM Container Registry, and deploy it to IKS when a release is created
-#
-# To configure this workflow:
-#
-# 1. Ensure that your repository contains a Dockerfile
-# 2. Setup secrets in your repository by going to settings: Create ICR_NAMESPACE and IBM_CLOUD_API_KEY
-# 3. Change the values for the IBM_CLOUD_REGION, REGISTRY_HOSTNAME, IMAGE_NAME, IKS_CLUSTER, DEPLOYMENT_NAME, and PORT
-
-name: Build and Deploy to PKS
+name: Pal Tracker Pipeline
 
 on:
-  release:
-    types: [created]
-
-# Environment variables available to all jobs and steps in this workflow
-env:
-  GITHUB_SHA: ${{ github.sha }}
-  PKS_CLOUD_API_KEY: api.pks.nilanjan.in
-  CR_NAMESPACE: apgovinda
-  REGISTRY_HOSTNAME: https://hub.docker.com
-  IMAGE_NAME: pal-tracker
-  PKS_CLUSTER: pks-workshop
-  DEPLOYMENT_NAME: pal-tracker-deployment
-  PORT: 5001
+  push:
+    branches: [master]
 
 jobs:
-  setup-build-publish-deploy:
-    name: Setup, Build, Publish, and Deploy
+  build-and-publish:
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout
-      uses: actions/checkout@v1
-    - name: Authenticate with PKS CLI
-      run: |
-        ./pks-utils/pkspal login --apikey "${PKS_CLOUD_API_KEY}" pks-workshop -u palpks -p DellEMC@123 -k
-        docker login -u apgovinda -p keepitsimple
-    # Build the Docker image
-    - name: Build with Docker
-      run: |
-        docker build -t "$REGISTRY_HOSTNAME"/"$CR_NAMESPACE"/"$IMAGE_NAME"
+      - uses: actions/checkout@v1
+      - name: Set up JDK 11
+        uses: actions/setup-java@v1
+        with:
+          java-version: 11
+      - name: Build with Gradle
+        run: ./gradlew build
+      - name: Publish artifact
+        uses: actions/upload-artifact@v1
+        with:
+          name: pal-tracker
+          path: build/libs/pal-tracker.jar
 
-    - name: Push the image to ICR
-      run: |
-        docker push $REGISTRY_HOSTNAME/$CR_NAMESPACE/$IMAGE_NAME
-    - name: Deploy to PKS
-      run: |
-        kubectl config current-context
-        kubectl apply -f pal-tracker-deployment.yaml
-        kubectl rollout status deployment/$DEPLOYMENT_NAME
-        kubectl get services -o wide
+  deploy:
+    needs: build-and-publish
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - name: Install Cf Cli
+        run: |
+          wget -q -O - https://packages.cloudfoundry.org/debian/cli.cloudfoundry.org.key | sudo apt-key add -
+          echo "deb https://packages.cloudfoundry.org/debian stable main" | sudo tee /etc/apt/sources.list.d/cloudfoundry-cli.list
+          sudo apt-get update
+          sudo apt-get install cf-cli
+      - name: Download artifact
+        uses: actions/download-artifact@v1
+        with:
+          name: pal-tracker
+      - name: Deploy to cf
+        run: |
+          cf api "$CF_API_URL"
+          cf auth
+          cf target -o "$CF_ORG" -s "$CF_SPACE"
+          cf push -p ./pal-tracker/pal-tracker.jar
+        env:
+          CF_API_URL: ${{ secrets.CF_API_URL }}
+          CF_ORG: ${{ secrets.CF_ORG }}
+          CF_SPACE: ${{ secrets.CF_SPACE }}
+          CF_USERNAME: ${{ secrets.CF_USERNAME }}
+          CF_PASSWORD: ${{ secrets.CF_PASSWORD }}
