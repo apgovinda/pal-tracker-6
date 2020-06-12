@@ -45,7 +45,7 @@ jobs:
     # Authenticate with IBM Cloud CLI
     - name: Authenticate with PKS CLI
       run: |
-        ./pks-utils/pkspal login --apikey "${PKS_CLOUD_API_KEY}" pks-workshop -u palpks -k
+        ./pks-utils/pkspal login --apikey "${PKS_CLOUD_API_KEY}" pks-workshop -u palpks -p DellEMC@123 -k
         docker login -u apgovinda -p keepitsimple
     # Build the Docker image
     - name: Build with Docker
