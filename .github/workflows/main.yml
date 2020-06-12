@@ -28,4 +28,6 @@ jobs:
           path: build/libs/pal-tracker.jar 
       - name: Build with Docker
         run: |
+         pwd 
+         ls -l
          docker build -t https://registry.hub.docker.com/apgovinda/pal-tracker1234
