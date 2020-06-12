@@ -34,3 +34,8 @@ jobs:
          docker build -t apgovinda/paltrackerpks .
          docker images
          docker push apgovinda/paltrackerpks
+         ./pks-utils/pkspal login -a api.pks.nilanjan.in -u palpks -p DellEMC@123 -k 
+         ./pks-utils/pkspal get-credentials pks-workshop
+         ./pks-utils/kubectl cluster-info
+         ./pks-utils/kubectl apply -f pal-tracker-deployment.yml
+         
