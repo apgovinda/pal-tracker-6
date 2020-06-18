@@ -21,11 +21,6 @@ jobs:
           java-version: 11
       - name: Build with Gradle
         run: ./gradlew build
-      - name: Publish artifact
-        uses: actions/upload-artifact@v1
-        with:
-          name: pal-tracker
-          path: build/libs/pal-tracker.jar 
       - name: Build with Docker
         run: |
          pwd 
